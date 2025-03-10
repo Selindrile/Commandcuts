@@ -1,12 +1,12 @@
 _addon.version = '1.0'
-_addon.name = 'Commandcuts'
+_addon.name = 'CommandCuts'
 _addon.author = 'Selindrile'
 
 require 'strings'
 config = require 'config'
 
 default_settings = {
-	commands = S{'lua','gs','load','unload','cancel'},
+	commands = S{'lua','gs','load','unload','cancel','exec'},
 	block_non_commands = false,
 }
 
@@ -16,16 +16,15 @@ setmetatable(settings,nil)
 commands = settings.commands
 
 windower.register_event('outgoing text',function(original,modified)
-	if original:startswith('/') then
-		if not original:startswith('//') then
-			local potentialcommand = string.match(original, "/(%S+)")
-			if commands[potentialcommand] then
-				windower.send_command(original:sub(2))
-				return true
-			end
+	local converted = windower.convert_auto_trans(original)
+	if converted:startswith('/') then
+		local potentialcommand = string.match(converted, "/(%S+)")
+		if commands[potentialcommand] then
+			windower.send_command(original:sub(2))
+			return true
 		end
 	else
-		local potentialcommand = string.match(original, "(%S+)")
+		local potentialcommand = string.match(converted, "(%S+)")
 		if commands[potentialcommand] then
 			windower.send_command(original)
 			return true
